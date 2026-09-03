@@ -84,3 +84,37 @@ if "filtered_df" in st.session_state:
             st.dataframe(targets_df)
         else:
             st.error("No targets were found. Something may have gone wrong during processing.")
+
+if "targets_df" in st.session_state:
+    st.subheader("Step 3: Enter a disease or condition")
+    condition_name = st.text_input("Enter a disease/condition", placeholder="e.g. anxiety")
+
+    if st.button("Find associated genes"):
+        from get_disease_genes import get_disease_genes
+
+        with st.spinner(f"Retrieving genes associated with '{condition_name}'..."):
+            disease_genes_df = get_disease_genes(condition_name)
+
+        if disease_genes_df.empty:
+            st.error("No genes found for this condition. Check the spelling, or try a broader term.")
+        else:
+            st.session_state["disease_genes_df"] = disease_genes_df
+            st.success(f"Found {len(disease_genes_df)} protein-coding genes associated with '{condition_name}'.")
+            st.dataframe(disease_genes_df)
+
+if "disease_genes_df" in st.session_state:
+    st.subheader("Step 4: Find overlapping candidates")
+
+    if st.button("Find overlap"):
+        from get_overlap import find_overlap
+
+        targets_df = st.session_state["targets_df"]
+        disease_genes_df = st.session_state["disease_genes_df"]
+
+        overlap_df = find_overlap(targets_df, disease_genes_df)
+
+        if overlap_df.empty:
+            st.warning("No overlapping targets found. Try a different plant part, a larger compound count, or a different condition.")
+        else:
+            st.success(f"Found {len(overlap_df)} matching compound-target pairs, across {overlap_df['common_name'].nunique()} genes and {overlap_df['compound_name'].nunique()} compounds.")
+            st.dataframe(overlap_df)

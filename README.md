@@ -17,21 +17,29 @@ Supervisor: Prof. Mansaf Alam
    confirmed working across multiple, unrelated plants (Withania somnifera, Ocimum 
    tenuiflorum, Ocimum americanum).
 2. **Target prediction** ✅ — given a compound's SMILES, automates submission to 
-   SwissTargetPrediction (via Selenium) and retrieves its top predicted human protein 
-   targets.
+   SwissTargetPrediction (via headless Selenium) and retrieves its top predicted human 
+   protein targets.
 3. **Disease association** ✅ — given a condition name, retrieves associated 
-   protein-coding genes from GeneCards, ranked by relevance. Currently limited to 
-   GeneCards' default result page size (~20 genes) due to anti-bot protection on their 
-   expanded-results API; a fix for this is a known open item.
+   protein-coding genes from GeneCards (via headless Selenium), ranked by relevance. 
+   Currently limited to GeneCards' default result page size (~17-20 genes) due to 
+   anti-bot protection on their expanded-results API.
 4. **Overlap analysis** ✅ — cross-references predicted compound targets against 
    disease-associated genes to surface candidates.
-5. **Interface** 🔄 in progress — Streamlit app. Plant selection, plant-part selection, 
-   compound count control (with time estimate), and live-progress target prediction are 
-   built and working. Disease input and overlap display are the next pieces.
-6. **Network visualisation** — planned (in-app Python-based visualisation, plus optional 
-   downloadable Cytoscape-compatible file).
-7. **Revisitable results links** — planned.
-8. **Docking** — on hold, pending coursework this semester.
+5. **Interface** ✅ — Streamlit app with the full pipeline wired end-to-end: plant 
+   selection, plant-part and compound-count control (with time estimate), live-progress 
+   target prediction, disease input, and overlap results — all running headless, with no 
+   visible browser windows during execution.
+6. **Network visualisation** *(next)* — in-app Python-based visualisation of overlap 
+   results, plus an optional downloadable Cytoscape-compatible file.
+7. **Revisitable results links** *(planned)* — unique, shareable link per run, so results 
+   can be revisited without rerunning the pipeline.
+8. **Docking** — not part of this semester's project scope; on hold, potentially to be 
+   taken up separately, pending coursework and/or a different supervisor.
+
+## Status
+Core pipeline complete and working end-to-end via the Streamlit interface, validated 
+across multiple plants and conditions (Withania somnifera / anxiety, Ocimum tenuiflorum 
+/ diabetes). Network visualisation and revisitable links are the next pieces.
 
 ## Known limitations
 - GeneCards disease-gene retrieval currently capped at ~20 results (default page size); 

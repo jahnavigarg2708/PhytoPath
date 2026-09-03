@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import pandas as pd
 import time
@@ -11,10 +12,19 @@ def get_targets(smiles, compound_name="", compound_id=""):
     Given a compound's SMILES string, submits it to SwissTargetPrediction and 
     returns a DataFrame of its top predicted human protein targets.
     """
-    driver = webdriver.Chrome()
+    options = Options()
+    options.add_argument("--headless=new")
+    options.add_argument("--window-size=1920,1080")
+    options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36")
+    driver = webdriver.Chrome(options=options)
     
     try:
         driver.get("https://www.swisstargetprediction.ch/")
+        try:
+            alert = driver.switch_to.alert
+            alert.accept()
+        except:
+            pass  # no alert present, nothing to do
         time.sleep(2)
 
         smiles_box = driver.find_element(By.ID, "smilesBox")
