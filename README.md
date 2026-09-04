@@ -27,19 +27,19 @@ Supervisor: Prof. Mansaf Alam
    disease-associated genes to surface candidates.
 5. **Interface** ✅ — Streamlit app with the full pipeline wired end-to-end: plant 
    selection, plant-part and compound-count control (with time estimate), live-progress 
-   target prediction, disease input, and overlap results — all running headless, with no 
-   visible browser windows during execution.
-6. **Network visualisation** *(next)* — in-app Python-based visualisation of overlap 
-   results, plus an optional downloadable Cytoscape-compatible file.
-7. **Revisitable results links** *(planned)* — unique, shareable link per run, so results 
-   can be revisited without rerunning the pipeline.
-8. **Docking** — not part of this semester's project scope; on hold, potentially to be 
-   taken up separately, pending coursework and/or a different supervisor.
+   target prediction, disease input, and overlap results — all running headless.
+6. **Caching** ✅ — repeated runs of the same plant/part/compound-count combination load 
+   instantly from a local cache instead of re-querying external servers.
+7. **Network visualisation** ✅ — interactive, draggable compound–target network diagram 
+   rendered directly in the app (via pyvis), plus a downloadable CSV export compatible 
+   with Cytoscape for users who want to explore the network there.
+8. **Revisitable results links** *(planned)* — unique, shareable link per run.
+9. **Docking** — not part of this semester's project scope.
 
 ## Status
-Core pipeline complete and working end-to-end via the Streamlit interface, validated 
-across multiple plants and conditions (Withania somnifera / anxiety, Ocimum tenuiflorum 
-/ diabetes). Network visualisation and revisitable links are the next pieces.
+Core pipeline complete and working end-to-end via the Streamlit interface, including 
+network visualisation and result caching. Validated across multiple plants and 
+conditions. Revisitable links and interface polish are the next pieces.
 
 ## Known limitations
 - GeneCards disease-gene retrieval currently capped at ~20 results (default page size); 
