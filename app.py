@@ -40,44 +40,47 @@ if "compounds_df" in st.session_state:
     
     st.info(f"Estimated time: approximately {max_compounds} minute(s)")
     
-    if st.button("Confirm selection"):
-        st.session_state["filtered_df"] = filtered_df.head(max_compounds)
-        st.success(f"Locked in {max_compounds} compounds from '{chosen_part}'. Ready for the next step.")
+st.subheader("Step 2: Run target prediction")
 
-if "filtered_df" in st.session_state:
-    st.subheader("Step 2: Run target prediction")
-    st.write(f"Ready to process {len(st.session_state['filtered_df'])} compounds.")
+if st.button("Run pipeline"):
+    st.session_state["filtered_df"] = filtered_df.head(max_compounds)
+    from get_compounds import add_smiles
+    from get_targets import get_targets
+    import pandas as pd
+        
+    df = st.session_state["filtered_df"]
+        
+    # Fetch SMILES first
+    status = st.empty()
+    status.write("Fetching chemical structures (SMILES)...")
+    from cache import load_cache, save_cache
+    cache_key = f"targets::{plant_name}::{chosen_part}::{max_compounds}"
+    cached_result = load_cache(cache_key)
+    with_smiles = add_smiles(df, max_compounds=len(df))
     
-    if st.button("Run pipeline"):
-        from get_compounds import add_smiles
-        from get_targets import get_targets
-        import pandas as pd
-        
-        df = st.session_state["filtered_df"]
-        
-        # Fetch SMILES first
-        status = st.empty()
-        status.write("Fetching chemical structures (SMILES)...")
-        with_smiles = add_smiles(df, max_compounds=len(df))
-        
-        # Now run target prediction, one compound at a time, with a visible progress bar
+    if cached_result is not None:
+        st.info("Loaded previously computed results from cache — instant.")
+        targets_df = cached_result
+        st.session_state["targets_df"] = targets_df
+        st.success(f"Retrieved {len(targets_df)} predicted targets across {targets_df['compound_name'].nunique()} compounds.")
+        st.dataframe(targets_df)
+    else:
         progress_bar = st.progress(0)
         status_text = st.empty()
         all_results = []
-        
         total = len(with_smiles)
+        
         for i, (index, row) in enumerate(with_smiles.iterrows()):
             status_text.write(f"Processing compound {i+1} of {total}: {row['compound_name']}...")
-            
             if pd.notna(row["SMILES"]) and row["SMILES"].strip() != "":
                 result = get_targets(row["SMILES"], compound_name=row["compound_name"], compound_id=row["impphy_id"])
                 if not result.empty:
                     all_results.append(result)
-            
             progress_bar.progress((i + 1) / total)
         
         if all_results:
             targets_df = pd.concat(all_results, ignore_index=True)
+            save_cache(cache_key, targets_df)
             st.session_state["targets_df"] = targets_df
             status_text.write("Done!")
             st.success(f"Retrieved {len(targets_df)} predicted targets across {targets_df['compound_name'].nunique()} compounds.")
@@ -112,9 +115,38 @@ if "disease_genes_df" in st.session_state:
         disease_genes_df = st.session_state["disease_genes_df"]
 
         overlap_df = find_overlap(targets_df, disease_genes_df)
+        st.session_state["overlap_df"] = overlap_df
 
         if overlap_df.empty:
             st.warning("No overlapping targets found. Try a different plant part, a larger compound count, or a different condition.")
         else:
             st.success(f"Found {len(overlap_df)} matching compound-target pairs, across {overlap_df['common_name'].nunique()} genes and {overlap_df['compound_name'].nunique()} compounds.")
             st.dataframe(overlap_df)
+
+if "overlap_df" in st.session_state and not st.session_state["overlap_df"].empty:
+    st.subheader("Step 5: Network visualization")
+
+    if st.button("Generate network diagram"):
+        from network_viz import build_network
+        import streamlit.components.v1 as components
+        import tempfile
+
+        net = build_network(st.session_state["overlap_df"])
+
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
+        net.save_graph(temp_file.name)
+        html_content = open(temp_file.name, "r", encoding="utf-8").read()
+
+        components.html(html_content, height=620)
+
+        edge_list = st.session_state["overlap_df"][["compound_name", "common_name", "probability"]].rename(
+            columns={"compound_name": "source", "common_name": "target", "probability": "weight"}
+        )
+        csv_data = edge_list.to_csv(index=False)
+
+        st.download_button(
+            "Download network as CSV (importable into Cytoscape)",
+            data=csv_data,
+            file_name="phytopath_network.csv",
+            mime="text/csv"
+        )
