@@ -18,3 +18,11 @@ def load_cache(key):
 def save_cache(key, df):
     path = _cache_path(key)
     df.to_pickle(path)
+
+def load_compound_cache(plant_name, plant_part, compound_id):
+    key = f"compound::{plant_name}::{plant_part}::{compound_id}"
+    return load_cache(key)
+
+def save_compound_cache(plant_name, plant_part, compound_id, df):
+    key = f"compound::{plant_name}::{plant_part}::{compound_id}"
+    save_cache(key, df)

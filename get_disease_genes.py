@@ -48,6 +48,14 @@ def get_disease_genes(condition_name, top_n=20):
     df = df[df["type"] == "Protein Coding"]
     df["relevance_score"] = pd.to_numeric(df["relevance_score"], errors="coerce")
     df = df.sort_values("relevance_score", ascending=False).head(top_n).reset_index(drop=True)
+    from uniprot_lookup import get_uniprot_id
+    
+    print("Looking up UniProt IDs for each gene...")
+    uniprot_ids = []
+    for symbol in df["symbol"]:
+        uniprot_ids.append(get_uniprot_id(symbol))
+    df["uniprot_id"] = uniprot_ids
+
     print(f"Found {len(df)} protein-coding genes for '{condition_name}'")
     return df
 
