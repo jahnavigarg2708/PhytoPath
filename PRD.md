@@ -67,15 +67,14 @@ and network visualisation are implemented and working.
   directly; architectural cleanup planned.
 - No fallback/alternative data source per step yet if a given external tool is 
   unavailable; noted as a future direction, not in current scope.
+- Caching is currently local to the machine running the app (file-based), not shared 
+  across deployments or users.
 
 ## 7. Roadmap (priority order)
-1. UniProt-ID-based overlap matching
-2. DisGeNET integration as a second disease-gene source
-3. Architecture cleanup (`app.py` → `pipeline.py` → modules, no duplication)
-4. `.gitignore` and repository cleanup (remove dev/debug scripts)
-5. Streamlit UI visual polish
-6. Broader validation across additional plant/condition pairs
-7. Revisitable results links (unique URL per run)
+1. DisGeNET integration as a second disease-gene source
+2. Streamlit UI visual polish
+3. Broader validation across additional plant/condition pairs
+4. Revisitable results links (unique URL per run)
 
 ## 8. Explicitly Out of Scope (this semester)
 Molecular docking, fallback/alternative-tool layers per pipeline step, AI-generated 

@@ -24,7 +24,8 @@ Supervisor: Prof. Mansaf Alam
    Currently limited to GeneCards' default result page size (~17-20 genes) due to 
    anti-bot protection on their expanded-results API.
 4. **Overlap analysis** ✅ — cross-references predicted compound targets against 
-   disease-associated genes to surface candidates.
+   disease-associated genes using stable UniProt-ID-based matching (upgraded from 
+   earlier gene-symbol text matching, for scientific rigour).
 5. **Interface** ✅ — Streamlit app with the full pipeline wired end-to-end: plant 
    selection, plant-part and compound-count control (with time estimate), live-progress 
    target prediction, disease input, and overlap results — all running headless.
@@ -38,8 +39,11 @@ Supervisor: Prof. Mansaf Alam
 
 ## Status
 Core pipeline complete and working end-to-end via the Streamlit interface, including 
-network visualisation and result caching. Validated across multiple plants and 
-conditions. Revisitable links and interface polish are the next pieces.
+network visualisation, result caching (per-compound, so partial reuse works across 
+different compound-count selections), and UniProt-ID-based overlap matching. Pipeline 
+logic has been consolidated into `pipeline.py`, with `app.py` calling it directly 
+rather than duplicating logic. Revisitable links, DisGeNET integration, and interface 
+polish are the next pieces.
 
 ## Known limitations
 - GeneCards disease-gene retrieval currently capped at ~20 results (default page size); 
