@@ -6,6 +6,7 @@ from pipeline import (
     get_genes_for_condition,
     compute_overlap,
 )
+st.set_page_config(page_title="PhytoPath", page_icon="🌿", layout="wide")
 
 def show_table(df):
     display_df = df.reset_index(drop=True)
@@ -15,9 +16,13 @@ def show_table(df):
 st.title("PhytoPath")
 st.write("A computational pipeline for medicinal-plant target-prioritisation analysis.")
 
-plant_name = st.text_input("Enter a plant's scientific name", placeholder="e.g. Withania somnifera")
+with st.sidebar:
+    st.header("🌿 PhytoPath")
+    st.caption("Medicinal-plant target-prioritisation pipeline")
+    plant_name = st.text_input("Plant's scientific name", placeholder="e.g. Withania somnifera")
+    fetch_clicked = st.button("Fetch compounds", use_container_width=True)
 
-if st.button("Fetch compounds"):
+if fetch_clicked:
     with st.spinner(f"Retrieving compounds for {plant_name}..."):
         compounds_df = get_compounds_for_plant(plant_name)
 
@@ -50,8 +55,8 @@ if "compounds_df" in st.session_state:
 
     st.info(f"Estimated time: approximately {max_compounds} minute(s), unless cached")
 
-    st.subheader("Step 2: Run target prediction")
-
+    st.divider()
+    st.subheader("🧪 Step 2: Run target prediction")
     if st.button("Run pipeline"):
         selected_df = filtered_df.head(max_compounds)
 
@@ -81,7 +86,8 @@ if "compounds_df" in st.session_state:
         show_table(tdf)
 
 if "targets_df" in st.session_state:
-    st.subheader("Step 3: Enter a disease or condition")
+    st.divider()
+    st.subheader("🦠 Step 3: Enter a disease or condition")
     condition_name = st.text_input("Enter a disease/condition", placeholder="e.g. anxiety")
 
     if st.button("Find associated genes"):
@@ -99,7 +105,8 @@ if "targets_df" in st.session_state:
         show_table(ddf)
 
 if "disease_genes_df" in st.session_state:
-    st.subheader("Step 4: Find overlapping candidates")
+    st.divider()
+    st.subheader("🦠 Step 4: Find overlapping candidates")
 
     if st.button("Find overlap"):
         overlap_df = compute_overlap(st.session_state["targets_df"], st.session_state["disease_genes_df"])
@@ -114,7 +121,8 @@ if "disease_genes_df" in st.session_state:
         show_table(odf)
 
 if "overlap_df" in st.session_state and not st.session_state["overlap_df"].empty:
-    st.subheader("Step 5: Network visualization")
+    st.divider()
+    st.subheader("🕸️ Step 5: Network visualization")
 
     if st.button("Generate network diagram"):
         from network_viz import build_network

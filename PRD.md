@@ -59,8 +59,8 @@ and network visualisation are implemented and working.
 ## 6. Known Limitations
 - GeneCards results capped at ~17–20 genes (default page size); their expanded-results 
   API is protected against automated access.
-- Overlap matching currently uses gene-symbol text comparison; being upgraded to 
-  UniProt-ID-based matching for scientific rigour.
+- Overlap matching uses stable UniProt accession IDs to cross-reference predicted 
+  protein targets with disease-associated genes.
 - Single disease-gene source (GeneCards); DisGeNET planned as a second, independent 
   source for cross-validation.
 - `app.py` currently duplicates some pipeline logic rather than calling `pipeline.py` 

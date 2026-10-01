@@ -34,6 +34,10 @@ def get_disease_genes(condition_name, top_n=20):
     results_table = soup.find("table", id="SearchResultsTable")
     driver.quit()
 
+    if results_table is None:
+        print(f"GeneCards result table not found for '{condition_name}'.")
+        return pd.DataFrame()
+
     rows = results_table.find_all("tr")
     data = []
     for row in rows[1:]:
