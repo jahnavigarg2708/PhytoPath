@@ -20,6 +20,7 @@ def get_disease_genes(condition_name, top_n=20):
     options.add_argument("--headless=new")
     options.add_argument("--window-size=1920,1080")
     options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36")
+    options.binary_location = "/usr/bin/chromium"
     driver = webdriver.Chrome(options=options)
     driver.get(url)
     try:
