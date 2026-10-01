@@ -38,7 +38,7 @@ def get_targets_for_selection(selected_df, plant_name, plant_part, progress_call
 
         for i, (index, row) in enumerate(with_smiles.iterrows()):
             if pd.isna(row["SMILES"]) or row["SMILES"].strip() == "":
-                print(f"SKIPPED: {row['compound_name']} ({row['impphy_id']}) — no SMILES found")
+                print(f"SKIPPED: {row['compound_name']} ({row['impphy_id']}) — no SMILES found", flush=True)
             else:
                 result = get_targets(row["SMILES"], compound_name=row["compound_name"], compound_id=row["impphy_id"])
                 if result.empty:
