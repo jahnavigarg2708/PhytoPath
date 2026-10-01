@@ -37,9 +37,13 @@ def get_targets_for_selection(selected_df, plant_name, plant_part, progress_call
         total = len(with_smiles)
 
         for i, (index, row) in enumerate(with_smiles.iterrows()):
-            if pd.notna(row["SMILES"]) and row["SMILES"].strip() != "":
+            if pd.isna(row["SMILES"]) or row["SMILES"].strip() == "":
+                print(f"SKIPPED: {row['compound_name']} ({row['impphy_id']}) — no SMILES found")
+            else:
                 result = get_targets(row["SMILES"], compound_name=row["compound_name"], compound_id=row["impphy_id"])
-                if not result.empty:
+                if result.empty:
+                    print(f"SKIPPED: {row['compound_name']} ({row['impphy_id']}) — SwissTargetPrediction returned no results")
+                else:
                     save_compound_cache(plant_name, plant_part, row["impphy_id"], result)
                     new_results.append(result)
             if progress_callback:

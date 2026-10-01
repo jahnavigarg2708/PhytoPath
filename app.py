@@ -48,10 +48,16 @@ if "compounds_df" in st.session_state:
 
     st.write(f"{len(filtered_df)} compounds available for '{chosen_part}'")
 
-    max_compounds = st.slider(
-        "How many compounds to process? (higher = more thorough, but slower — roughly 1 minute per compound)",
-        min_value=1, max_value=min(30, len(filtered_df)), value=min(10, len(filtered_df))
-    )
+    available_count = len(filtered_df)
+
+    if available_count <= 1:
+        max_compounds = available_count
+        st.write(f"Only {available_count} compound available for '{chosen_part}' — it will be used automatically.")
+    else:
+        max_compounds = st.slider(
+            "How many compounds to process? (higher = more thorough, but slower — roughly 1 minute per compound)",
+            min_value=1, max_value=min(30, available_count), value=min(10, available_count)
+        )
 
     st.info(f"Estimated time: approximately {max_compounds} minute(s), unless cached")
 
@@ -62,6 +68,7 @@ if "compounds_df" in st.session_state:
 
         progress_bar = st.progress(0)
         status_text = st.empty()
+        status_text.write("Starting pipeline — fetching chemical structures (SMILES)...")
 
         def update_progress(current, total, name):
             status_text.write(f"Processing compound {current} of {total}: {name}...")
