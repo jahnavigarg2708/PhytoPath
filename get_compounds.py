@@ -17,11 +17,25 @@ def get_compounds(plant_name):
     soup = BeautifulSoup(response.text, "html.parser")
 
     tables = soup.find_all("table")
-    if not tables:
-        print(f"No compound table found for {plant_name}")
+
+    def looks_like_compound_table(table):
+        rows = table.find_all("tr")
+        if len(rows) < 2:
+            return False
+        sample_cells = [c.get_text(strip=True) for c in rows[1].find_all(["td", "th"])]
+        return len(sample_cells) >= 4 and sample_cells[2].upper().startswith("IMP")
+
+    compound_table = None
+    for t in tables:
+        if looks_like_compound_table(t):
+            compound_table = t
+            break
+
+    if compound_table is None:
+        print(f"Could not find compound table for {plant_name}")
         return pd.DataFrame()
 
-    rows = tables[0].find_all("tr")
+    rows = compound_table.find_all("tr")
     data = []
 
     for row in rows[1:]:  # skip header row
