@@ -23,14 +23,17 @@ with st.sidebar:
     fetch_clicked = st.button("Fetch compounds", use_container_width=True)
 
 if fetch_clicked:
-    with st.spinner(f"Retrieving compounds for {plant_name}..."):
-        compounds_df = get_compounds_for_plant(plant_name)
-
-    if compounds_df.empty:
-        st.error("No compounds found for this plant. Check the spelling of the scientific name.")
+    if not plant_name or plant_name.strip() == "":
+        st.warning("Please enter a plant name before continuing.")
     else:
-        st.session_state["compounds_df"] = compounds_df
-        st.success(f"Found {len(compounds_df)} compounds for {plant_name}.")
+        with st.spinner(f"Retrieving compounds for {plant_name}..."):
+            compounds_df = get_compounds_for_plant(plant_name)
+
+        if compounds_df.empty:
+            st.error("No compounds found for this plant. Check the spelling of the scientific name.")
+        else:
+            st.session_state["compounds_df"] = compounds_df
+            st.success(f"Found {len(compounds_df)} compounds for {plant_name}.")
 
 if "compounds_df" in st.session_state:
     df = st.session_state["compounds_df"]
@@ -98,13 +101,16 @@ if "targets_df" in st.session_state:
     condition_name = st.text_input("Enter a disease/condition", placeholder="e.g. anxiety")
 
     if st.button("Find associated genes"):
-        with st.spinner(f"Retrieving genes associated with '{condition_name}'..."):
-            disease_genes_df = get_genes_for_condition(condition_name)
-
-        if disease_genes_df.empty:
-            st.error("No genes found for this condition. Check the spelling, or try a broader term.")
+        if not condition_name or condition_name.strip() == "":
+            st.warning("Please enter a disease or condition before continuing.")
         else:
-            st.session_state["disease_genes_df"] = disease_genes_df
+            with st.spinner(f"Retrieving genes associated with '{condition_name}'..."):
+                disease_genes_df = get_genes_for_condition(condition_name)
+
+            if disease_genes_df.empty:
+                st.error("No genes found for this condition. Check the spelling, or try a broader term.")
+            else:
+                st.session_state["disease_genes_df"] = disease_genes_df
 
     if "disease_genes_df" in st.session_state:
         ddf = st.session_state["disease_genes_df"]
