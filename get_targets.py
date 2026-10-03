@@ -31,6 +31,9 @@ def get_targets(smiles, compound_name="", compound_id=""):
             alert.accept()
         except:
             pass  # no alert present, nothing to do
+        WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.ID, "smilesBox"))
+        )
         time.sleep(2)
 
         smiles_box = driver.find_element(By.ID, "smilesBox")
