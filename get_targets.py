@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import pandas as pd
 import time
+import os
 
 def get_targets(smiles, compound_name="", compound_id=""):
     """
@@ -19,7 +20,8 @@ def get_targets(smiles, compound_name="", compound_id=""):
     options.add_argument("--disable-gpu")
     options.add_argument("--window-size=1920,1080")
     options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36")
-    options.binary_location = "/usr/bin/chromium"
+    if os.path.exists("/usr/bin/chromium"):
+        options.binary_location = "/usr/bin/chromium"
     driver = webdriver.Chrome(options=options)
     
     try:
