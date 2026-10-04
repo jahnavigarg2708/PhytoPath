@@ -1,64 +1,87 @@
 # PhytoPath
 
-A general-purpose computational pipeline for medicinal-plant phytochemical–target–disease 
-association analysis. Given any medicinal plant and any disease/condition, PhytoPath 
-automates compound retrieval, target prediction, disease-gene association, and candidate 
-overlap analysis — packaged behind an interactive interface.
+A reusable computational pipeline and interactive web tool for medicinal-plant 
+phytochemical–target–disease association analysis. Given any medicinal plant and any 
+disease/condition, PhytoPath automates compound retrieval, target prediction, 
+disease-gene association, candidate overlap analysis, and network visualisation — 
+rather than performing a single manual, plant-specific case study.
 
-This is a generalisation of an earlier plant-specific analysis (Withania somnifera / 
-anxiety), rebuilt as reusable software rather than a single case study.
+**Live tool:** [phytopath.streamlit.app](https://phytopath.streamlit.app)
 
-## Status: work in progress — MSc Bioinformatics minor project, Jamia Millia Islamia
-Supervisor: Prof. Mansaf Alam
+## Background
+This project builds on the author's BSc dissertation (rbcL-based taxonomic 
+classification of ten Ayurvedic plants, Delhi University) and an earlier single-plant 
+case study (Withania somnifera and anxiety-related targets). PhytoPath generalises 
+that case study into reusable software, following explicit guidance from the project 
+supervisor (Prof. Mansaf Alam, Dept. of Computer Science, JMI) to build a tool rather 
+than repeat a manual, single-case analysis.
 
 ## Pipeline stages
 1. **Compound retrieval** ✅ — given a plant name, retrieves its full phytochemical 
-   profile from IMPPAT (all plant parts), including SMILES structures. Tested and 
-   confirmed working across multiple, unrelated plants (Withania somnifera, Ocimum 
-   tenuiflorum, Ocimum americanum).
-2. **Target prediction** ✅ — given a compound's SMILES, automates submission to 
-   SwissTargetPrediction (via headless Selenium) and retrieves its top predicted human 
-   protein targets.
+   profile from IMPPAT (all plant parts, in one request), including SMILES structures. 
+   Validated across multiple unrelated plants (Withania somnifera, Ocimum tenuiflorum, 
+   Ocimum americanum).
+2. **Target prediction** ✅ — automates submission of each compound's SMILES to 
+   SwissTargetPrediction (headless Selenium), returning ranked predicted human protein 
+   targets. Includes explicit element-wait logic and retry with exponential backoff to 
+   handle variable cloud-server response times.
 3. **Disease association** ✅ — given a condition name, retrieves associated 
-   protein-coding genes from GeneCards (via headless Selenium), ranked by relevance. 
-   Currently limited to GeneCards' default result page size (~17-20 genes) due to 
-   anti-bot protection on their expanded-results API.
+   protein-coding genes from GeneCards (headless Selenium), each mapped to a UniProt 
+   accession ID via the UniProt REST API. Includes retry logic with exponential 
+   backoff to handle intermittent failures (see Known Limitations).
 4. **Overlap analysis** ✅ — cross-references predicted compound targets against 
-   disease-associated genes using stable UniProt-ID-based matching (upgraded from 
-   earlier gene-symbol text matching, for scientific rigour).
-5. **Interface** ✅ — Streamlit app with the full pipeline wired end-to-end: plant 
-   selection, plant-part and compound-count control (with time estimate), live-progress 
-   target prediction, disease input, and overlap results — all running headless.
-6. **Caching** ✅ — repeated runs of the same plant/part/compound-count combination load 
-   instantly from a local cache instead of re-querying external servers.
-7. **Network visualisation** ✅ — interactive, draggable compound–target network diagram 
-   rendered directly in the app (via pyvis), plus a downloadable CSV export compatible 
-   with Cytoscape for users who want to explore the network there.
-8. **Revisitable results links** *(planned)* — unique, shareable link per run.
-9. **Docking** — not part of this semester's project scope.
+   disease-associated genes using stable UniProt accession IDs (not text/symbol 
+   matching), for scientifically defensible identifier matching.
+5. **Interface** ✅ — Streamlit app: plant selection with plant-part and compound-count 
+   control (with time estimate), live-progress target prediction, disease input, 
+   overlap results, all running headless. Input validation prevents empty submissions. 
+   Changing an upstream input (plant, compound count, condition) correctly clears all 
+   downstream results rather than leaving stale data displayed.
+6. **Caching** ✅ — per-compound local caching; repeated or partially-overlapping 
+   compound selections reuse cached results rather than re-querying external servers.
+7. **Network visualisation** ✅ — interactive compound–target network diagram rendered 
+   in-app (via pyvis), plus a downloadable CSV export compatible with Cytoscape.
+8. **Deployment** ✅ — live on Streamlit Community Cloud. Required cloud-specific 
+   hardening: Chromium installed via `packages.txt`; headless Chrome launched with 
+   `--no-sandbox`, `--disable-dev-shm-usage`, `--disable-gpu`; binary path set 
+   conditionally so the same code runs correctly both locally (Windows/Mac) and on 
+   the cloud's Linux environment.
+9. **Revisitable results links** *(planned)* — unique, shareable link per run.
+10. **DisGeNET integration** *(pending)* — second, independent disease-gene source via 
+    documented REST API; account approval requested, awaiting response.
+11. **Docking** — explicitly not part of this semester's project scope.
 
-## Status
-Core pipeline complete and working end-to-end via the Streamlit interface, including 
-network visualisation, result caching (per-compound, so partial reuse works across 
-different compound-count selections), and UniProt-ID-based overlap matching. Pipeline 
-logic has been consolidated into `pipeline.py`, with `app.py` calling it directly 
-rather than duplicating logic. Revisitable links, DisGeNET integration, and interface 
-polish are the next pieces.
+## Key preliminary finding (from the earlier case study)
+Two Withania somnifera compounds (Hygrine, Cuscohygrine) were predicted to target 
+**HTR1A** (serotonin receptor 1A), a clinically validated anxiolytic drug target 
+(e.g. buspirone). This is a computationally predicted association, not evidence of 
+clinical efficacy, and is treated as a hypothesis for further investigation rather 
+than a confirmed result.
 
 ## Known limitations
-- GeneCards disease-gene retrieval currently capped at ~20 results (default page size); 
-  their expanded-results API returned 403 errors during development and needs a proper 
-  fix or an alternative approach.
-- Overlap matching currently uses gene symbol text matching; upgrading to stable 
-  UniProt-ID-based matching is a planned refinement.
-- Target prediction takes roughly 1 minute per compound; the interface currently caps 
-  and estimates this, but true background/async processing is a future improvement.
-
-## Tools used
-Python (pandas, BeautifulSoup, Selenium, requests, Streamlit)
+- **GeneCards and SwissTargetPrediction retrieval, implemented via browser automation, 
+  experience intermittent failures when deployed on cloud infrastructure** — likely 
+  due to bot-detection measures affecting shared cloud IP ranges, observed as 
+  inconsistent timeouts not reproducible locally. Retry logic with exponential backoff 
+  (up to 5 attempts) mitigates but does not eliminate this; across an 11-run sample, 
+  roughly half required more than one attempt. DisGeNET, via a documented API rather 
+  than scraping, is expected to be more reliable once integrated.
+- Disease-gene results from GeneCards are limited to their default result-page size 
+  (~17–20 genes); their expanded-results API returns 403 errors on automated access.
+- Caching is local to the running instance, not shared across deployments or users.
+- No fallback/alternative data source per pipeline step yet (flagged as a future 
+  direction, not current scope).
 
 ## Data sources
-IMPPAT, SwissTargetPrediction, GeneCards
+IMPPAT, SwissTargetPrediction, GeneCards, UniProt (DisGeNET planned)
+
+## Tools used
+Python, Streamlit, Selenium, BeautifulSoup, pandas, pyvis, requests
+
+## Status
+Deployed, functional end-to-end prototype. MSc Bioinformatics minor project, Jamia 
+Millia Islamia, supervised by Prof. Mansaf Alam. A publication based on this work is 
+planned, with the supervisor's support.
 
 ## Author
 Jahnavi Garg
