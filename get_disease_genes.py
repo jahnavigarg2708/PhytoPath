@@ -9,7 +9,18 @@ import time
 import os
 
 
-def get_disease_genes(condition_name, top_n=50):
+def get_disease_genes(condition_name, top_n=50, max_retries=3):
+    for attempt in range(1, max_retries + 1):
+        result = _try_fetch_disease_genes(condition_name, top_n)
+        if not result.empty:
+            return result
+        print(f"Attempt {attempt}/{max_retries} failed for '{condition_name}', retrying...", flush=True)
+        time.sleep(3)
+    print(f"All {max_retries} attempts failed for '{condition_name}'.", flush=True)
+    return pd.DataFrame()
+
+
+def _try_fetch_disease_genes(condition_name, top_n):
     options = Options()
     options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
@@ -31,7 +42,7 @@ def get_disease_genes(condition_name, top_n=50):
         except:
             pass
 
-        WebDriverWait(driver, 45).until(
+        WebDriverWait(driver, 60).until(
             EC.presence_of_element_located((By.ID, "SearchResultsTable"))
         )
         time.sleep(2)
