@@ -8,7 +8,20 @@ import pandas as pd
 import time
 import os
 
-def get_targets(smiles, compound_name="", compound_id=""):
+def get_targets(smiles, compound_name="", compound_id="", max_retries=5):
+    wait_times = [3, 6, 12, 20, 30]
+    for attempt in range(1, max_retries + 1):
+        result = _try_get_targets(smiles, compound_name, compound_id)
+        if not result.empty:
+            return result
+        print(f"Attempt {attempt}/{max_retries} failed for {compound_name}.", flush=True)
+        if attempt < max_retries:
+            time.sleep(wait_times[attempt - 1])
+    print(f"All {max_retries} attempts failed for {compound_name}.", flush=True)
+    return pd.DataFrame()
+
+
+def _try_get_targets(smiles, compound_name="", compound_id=""):
     """
     Given a compound's SMILES string, submits it to SwissTargetPrediction and 
     returns a DataFrame of its top predicted human protein targets.

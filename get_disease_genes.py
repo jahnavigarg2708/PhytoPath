@@ -9,13 +9,15 @@ import time
 import os
 
 
-def get_disease_genes(condition_name, top_n=50, max_retries=3):
+def get_disease_genes(condition_name, top_n=50, max_retries=5):
+    wait_times = [3, 6, 12, 20, 30]
     for attempt in range(1, max_retries + 1):
         result = _try_fetch_disease_genes(condition_name, top_n)
         if not result.empty:
             return result
-        print(f"Attempt {attempt}/{max_retries} failed for '{condition_name}', retrying...", flush=True)
-        time.sleep(3)
+        print(f"Attempt {attempt}/{max_retries} failed for '{condition_name}'.", flush=True)
+        if attempt < max_retries:
+            time.sleep(wait_times[attempt - 1])
     print(f"All {max_retries} attempts failed for '{condition_name}'.", flush=True)
     return pd.DataFrame()
 

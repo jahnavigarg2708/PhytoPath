@@ -33,6 +33,8 @@ if fetch_clicked:
             st.error("No compounds found for this plant. Check the spelling of the scientific name.")
         else:
             st.session_state["compounds_df"] = compounds_df
+            for key in ["filtered_df", "targets_df", "disease_genes_df", "overlap_df", "network_html"]:
+                st.session_state.pop(key, None)
             st.success(f"Found {len(compounds_df)} compounds for {plant_name}.")
 
 if "compounds_df" in st.session_state:
@@ -86,6 +88,8 @@ if "compounds_df" in st.session_state:
 
         if not targets_df.empty:
             st.session_state["targets_df"] = targets_df
+            for key in ["disease_genes_df", "overlap_df", "network_html"]:
+                st.session_state.pop(key, None)
             st.success("Done!")
         else:
             st.error("No targets were found. Something may have gone wrong during processing.")
@@ -111,6 +115,8 @@ if "targets_df" in st.session_state:
                 st.error("No genes found for this condition. Check the spelling, or try a broader term.")
             else:
                 st.session_state["disease_genes_df"] = disease_genes_df
+                for key in ["overlap_df", "network_html"]:
+                    st.session_state.pop(key, None)
 
     if "disease_genes_df" in st.session_state:
         ddf = st.session_state["disease_genes_df"]
@@ -124,6 +130,7 @@ if "disease_genes_df" in st.session_state:
     if st.button("Find overlap"):
         overlap_df = compute_overlap(st.session_state["targets_df"], st.session_state["disease_genes_df"])
         st.session_state["overlap_df"] = overlap_df
+        st.session_state.pop("network_html", None)
 
         if overlap_df.empty:
             st.warning("No overlapping targets found. Try a different plant part, a larger compound count, or a different condition.")
