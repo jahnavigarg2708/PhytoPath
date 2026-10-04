@@ -81,27 +81,17 @@ results) are implemented.
 ## 7. Roadmap (priority order)
 1. DisGeNET integration as a second, independent, API-based disease-gene source 
    (also expected to improve reliability over scraping-based GeneCards retrieval)
-2. Formal algorithm specification for publication (per supervisor's request)
+2. Formal algorithm specification of the pipeline (structured pseudocode/stepwise
+   description), to strengthen methodological clarity.
 3. Systematic validation with reported statistics across multiple plant/condition 
-   pairs (per supervisor's request, in the absence of directly comparable prior 
-   literature for some pairs)
+   pairs to support claims where directly comparable prior is unavailable.
 4. Revisitable results links (unique URL per run)
 5. Optional: plant-part therapeutic-use context display (IMPPAT already contains 
    this data; suggested by ICGEB guest faculty as a way to support users without 
    prior domain research — not an AI/chatbot feature)
 6. Streamlit UI visual polish
 
-## 8. Publication Plan
-Supervisor (Prof. Mansaf Alam) has offered to co-author and support publication of 
-this work. Two specific guidance points given:
-- Include a formal algorithm specification of the pipeline (structured 
-  pseudocode/stepwise description), not only a narrative description.
-- Where directly comparable prior literature is unavailable for a given 
-  plant/condition pairing, support claims with the project's own statistical/ 
-  quantitative evidence (e.g. validation results across multiple runs and 
-  plant/condition pairs) rather than external citation alone.
-
-## 9. Explicitly Out of Scope (this semester)
+## 8. Explicitly Out of Scope (this semester)
 Molecular docking, AI/LLM-based result interpretation or chatbot features, wet-lab 
 validation, fallback/alternative-tool layers per pipeline step, shared/multi-user 
 caching infrastructure.

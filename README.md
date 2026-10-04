@@ -13,8 +13,7 @@ This project builds on the author's BSc dissertation (rbcL-based taxonomic
 classification of ten Ayurvedic plants, Delhi University) and an earlier single-plant 
 case study (Withania somnifera and anxiety-related targets). PhytoPath generalises 
 that case study into reusable software, following explicit guidance from the project 
-supervisor (Prof. Mansaf Alam, Dept. of Computer Science, JMI) to build a tool rather 
-than repeat a manual, single-case analysis.
+supervisor (Prof. Mansaf Alam, Dept. of Computer Science, JMI) to build a tool.
 
 ## Pipeline stages
 1. **Compound retrieval** ✅ — given a plant name, retrieves its full phytochemical 
@@ -80,8 +79,7 @@ Python, Streamlit, Selenium, BeautifulSoup, pandas, pyvis, requests
 
 ## Status
 Deployed, functional end-to-end prototype. MSc Bioinformatics minor project, Jamia 
-Millia Islamia, supervised by Prof. Mansaf Alam. A publication based on this work is 
-planned, with the supervisor's support.
+Millia Islamia, supervised by Prof. Mansaf Alam.
 
 ## Author
 Jahnavi Garg
